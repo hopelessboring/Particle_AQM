@@ -1,7 +1,36 @@
 import { db } from '../firebase.js';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
+// Add the dropdown population functions
+function populateDays() {
+    const daySelect = document.getElementById('day');
+    daySelect.innerHTML = ''; // Clear existing options
+
+    for (let i = 1; i <= 31; i++) {
+        const option = document.createElement('option');
+        option.value = i.toString().padStart(2, '0');
+        option.textContent = i;
+        daySelect.appendChild(option);
+    }
+}
+
+function populateMinutes() {
+    const minuteSelect = document.getElementById('minute');
+    minuteSelect.innerHTML = ''; // Clear existing options
+
+    for (let i = 0; i < 60; i++) {
+        const option = document.createElement('option');
+        option.value = i.toString().padStart(2, '0');
+        option.textContent = i.toString().padStart(2, '0');
+        minuteSelect.appendChild(option);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Populate dropdowns
+    populateDays();
+    populateMinutes();
+
     const form = document.getElementById('airQualityForm');
     const submitButton = document.getElementById('submitButton');
 

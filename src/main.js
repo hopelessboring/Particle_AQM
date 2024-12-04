@@ -22,7 +22,7 @@ Object.defineProperty(window, 'maxAQI', {
     }
 });
 
-// Define core colors (customize these to match your aesthetic)
+// Define core colors 
 const CORE_COLORS = {
     safe: [0, 255, 128],      // A soft green
     moderate: [255, 223, 0],   // A warm yellow
@@ -148,6 +148,47 @@ async function updateStyles() {
             glowingCircle.style.setProperty('--glow-color-3', color);
             glowingCircle.style.setProperty('--glow-color-4', color);
             innerCircle.style.setProperty('--inner-glow-color', color);
+
+            // Determine risk level based on AQI
+            let riskLevel;
+            let dominantPollutant = '';
+
+            if (window.maxAQI <= 50) {
+                riskLevel = 'Good Air Quality';
+            } else if (window.maxAQI <= 100) {
+                riskLevel = 'Moderate Risk';
+            } else if (window.maxAQI <= 150) {
+                riskLevel = 'Unhealthy for Sensitive Groups';
+            } else if (window.maxAQI <= 200) {
+                riskLevel = 'Unhealthy';
+            } else if (window.maxAQI <= 300) {
+                riskLevel = 'Very Unhealthy';
+            } else {
+                riskLevel = 'Hazardous';
+            }
+
+            // Determine dominant pollutant
+            const pollutants = {
+                'PM2.5': reading.pm2_5,
+                'PM10': reading.pm10,
+                'TVOC': reading.TVOC,
+                'eCO₂': reading.eCO2
+            };
+
+            const highestValue = Math.max(...Object.values(pollutants));
+            dominantPollutant = Object.entries(pollutants).find(([key, value]) => value === highestValue)[0];
+
+            // Format the value string
+            const valueString = `${Math.round(highestValue)} PPM ${dominantPollutant}`;
+
+            // Update the annotation
+            const riskLevelElement = document.querySelector('.risk-level');
+            const riskValueElement = document.querySelector('.risk-value');
+
+            if (riskLevelElement && riskValueElement) {
+                riskLevelElement.textContent = riskLevel;
+                riskValueElement.textContent = valueString;
+            }
         });
 
         if (window.maxAQI >= 100 && window.maxAQI < 300) {

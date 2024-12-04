@@ -38,8 +38,7 @@
             <div class="top-box">
                 <h1 class="heading">Submit an air quality event</h1>
                 <p>Did you observe something that might have affected air quality on the ITP/IMA shop floor? Submit a
-                    report below.</p>
-                <p>Be sure to include any relevant details.</p>
+                    report below. Be sure to include any relevant details.</p>
 
                 <form id="airQualityForm">
                     <div class="form-group">
@@ -60,39 +59,59 @@
                         <label>Date and time of incident</label>
                         <div class="date-time-inputs">
                             <select name="month" id="month">
+                                <option value="Jan">Jan</option>
+                                <option value="Feb">Feb</option>
+                                <option value="Mar">Mar</option>
+                                <option value="Apr">Apr</option>
+                                <option value="May">May</option>
+                                <option value="Jun">Jun</option>
+                                <option value="Jul">Jul</option>
+                                <option value="Aug">Aug</option>
+                                <option value="Sep">Sep</option>
+                                <option value="Oct">Oct</option>
                                 <option value="Nov">Nov</option>
-                                <!-- Add other months -->
+                                <option value="Dec">Dec</option>
                             </select>
                             <select name="day" id="day">
-                                <option value="25">25</option>
-                                <!-- Add other days -->
+                                <!-- Will be populated by JavaScript -->
                             </select>
                             <select name="year" id="year">
-                                <option value="24">24</option>
-                                <!-- Add other years -->
+                                <option value="24">2024</option>
+                                <option value="23">2023</option>
                             </select>
                             <select name="hour" id="hour">
-                                <option value="08">08</option>
-                                <!-- Add other hours -->
+                                <option value="01">1</option>
+                                <option value="02">2</option>
+                                <option value="03">3</option>
+                                <option value="04">4</option>
+                                <option value="05">5</option>
+                                <option value="06">6</option>
+                                <option value="07">7</option>
+                                <option value="08">8</option>
+                                <option value="09">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
                             </select>
                             <select name="minute" id="minute">
-                                <option value="11">11</option>
-                                <!-- Add other minutes -->
+                                <!-- Will be populated by JavaScript -->
                             </select>
                             <select name="period" id="period">
-                                <option value="pm">pm</option>
-                                <option value="am">am</option>
+                                <option value="am">AM</option>
+                                <option value="pm">PM</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <input type="text" id="fullName" name="fullName" placeholder="Full Name" aria-label="Full Name">
-                    </div>
-
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" placeholder="E-mail address"
-                            aria-label="Email address">
+                    <div class="form-group name-email-row">
+                        <div class="input-half">
+                            <input type="text" id="fullName" name="fullName" placeholder="Full Name"
+                                aria-label="Full Name">
+                        </div>
+                        <div class="input-half">
+                            <input type="email" id="email" name="email" placeholder="E-mail address"
+                                aria-label="Email address">
+                        </div>
                     </div>
 
                     <div class="form-group">
