@@ -22,6 +22,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+export { db };
 
 // Function to fetch the latest air quality data
 export async function getLatestAirQualityData(numberOfRecords = 10) {
