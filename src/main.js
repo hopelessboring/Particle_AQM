@@ -11,6 +11,50 @@ window.pm2_5 = null;
 window.timestamp = null;
 window.maxAQI = null;
 
+// Add this near the top with your other window variables
+Object.defineProperty(window, 'maxAQI', {
+    set: function (value) {
+        this._maxAQI = value;
+        updateStyles();
+    },
+    get: function () {
+        return this._maxAQI || 0;  // Default to 0 if not set
+    }
+});
+
+// Define core colors (customize these to match your aesthetic)
+const CORE_COLORS = {
+    safe: [0, 255, 128],      // A soft green
+    moderate: [255, 223, 0],   // A warm yellow
+    warning: [255, 140, 0],    // A bright orange
+    danger: [255, 69, 0],      // A vibrant red
+    severe: [128, 0, 128],     // A deep purple
+    hazardous: [128, 0, 0]     // A dark red
+};
+
+function interpolateColor(color1, color2, factor) {
+    const result = color1.slice();
+    for (let i = 0; i < 3; i++) {
+        result[i] = Math.round(result[i] + factor * (color2[i] - result[i]));
+    }
+    return `rgb(${result[0]}, ${result[1]}, ${result[2]})`;
+}
+
+function getColorForAQI(aqi) {
+    if (aqi <= 50) {
+        return interpolateColor(CORE_COLORS.safe, CORE_COLORS.moderate, aqi / 50);
+    } else if (aqi <= 100) {
+        return interpolateColor(CORE_COLORS.moderate, CORE_COLORS.warning, (aqi - 50) / 50);
+    } else if (aqi <= 200) {
+        return interpolateColor(CORE_COLORS.warning, CORE_COLORS.danger, (aqi - 100) / 100);
+    } else if (aqi <= 300) {
+        return interpolateColor(CORE_COLORS.danger, CORE_COLORS.severe, (aqi - 200) / 100);
+    } else if (aqi <= 500) {
+        return interpolateColor(CORE_COLORS.severe, CORE_COLORS.hazardous, (aqi - 300) / 200);
+    }
+    return `rgb(${CORE_COLORS.hazardous[0]}, ${CORE_COLORS.hazardous[1]}, ${CORE_COLORS.hazardous[2]})`;
+}
+
 // Example async function to fetch and display data
 async function displayAirQualityData() {
     try {
@@ -82,56 +126,51 @@ async function startDataPolling() {
 async function updateStyles() {
     try {
         const latestData = await getLatestAirQualityData(1);
+        const glowingCircle = document.querySelector('.glowing-circle');
+        const innerCircle = document.querySelector('.inner');
+
+        if (!glowingCircle || !innerCircle) return;
+
         latestData.forEach(reading => {
-            const glowIntensity = reading.glowIntensity || 7; // Example value
-            const pulseSpeed = reading.pulseSpeed || 20; // Example value
+            const glowIntensity = reading.glowIntensity || 7;
+            const pulseSpeed = reading.pulseSpeed || 20;
 
-            // Update the glowing-circle animation duration
-            const glowingCircle = document.querySelector('.glowing-circle');
-            if (glowingCircle) {
-                glowingCircle.style.animationDuration = `${glowIntensity / 7}s`;
-            }
+            // Update animation durations
+            glowingCircle.style.animationDuration = `${glowIntensity / 7}s`;
+            innerCircle.style.animationDuration = `${pulseSpeed}s`;
 
-            // Update the pulse animation duration
-            const innerCircle = document.querySelector('.inner');
-            if (innerCircle) {
-                innerCircle.style.animationDuration = `${pulseSpeed}s`;
-            }
+            // Get interpolated color based on AQI
+            const color = getColorForAQI(window.maxAQI);
 
-            if (maxSubIndex >= 300) {
-                // Change outer circle glow colors
-                glowingCircle.style.setProperty('--glow-color-1', '#fff');
-                glowingCircle.style.setProperty('--glow-color-2', '#f0f');
-                glowingCircle.style.setProperty('--glow-color-3', '#00ffff');
-                glowingCircle.style.setProperty('--glow-color-4', '#e60073');
-
-                // Change inner circle glow color
-                innerCircle.style.setProperty('--inner-glow-color', '#FF6C00');
-            }
-
-            if (maxSubIndex >= 100 && maxSubIndex < 300) {
-                // Change outer circle glow colors
-                glowingCircle.style.setProperty('--glow-color-1', '#fff');
-                glowingCircle.style.setProperty('--glow-color-2', '#f0f');
-                glowingCircle.style.setProperty('--glow-color-3', '#00ffff');
-                glowingCircle.style.setProperty('--glow-color-4', '#e60073');
-
-                // Change inner circle glow color
-                innerCircle.style.setProperty('--inner-glow-color', '#FF6C00');
-            }
-
-            if (maxSubIndex < 100) {
-                // Change outer circle glow colors
-                glowingCircle.style.setProperty('--glow-color-1', '#fff');
-                glowingCircle.style.setProperty('--glow-color-2', '#f0f');
-                glowingCircle.style.setProperty('--glow-color-3', '#00ffff');
-                glowingCircle.style.setProperty('--glow-color-4', '#e60073');
-
-                // Change inner circle glow color
-                innerCircle.style.setProperty('--inner-glow-color', '#FF6C00');
-            }
-
+            // Apply colors with slight variations for visual interest
+            glowingCircle.style.setProperty('--glow-color-1', color);
+            glowingCircle.style.setProperty('--glow-color-2', color);
+            glowingCircle.style.setProperty('--glow-color-3', color);
+            glowingCircle.style.setProperty('--glow-color-4', color);
+            innerCircle.style.setProperty('--inner-glow-color', color);
         });
+
+        if (window.maxAQI >= 100 && window.maxAQI < 300) {
+            // Change outer circle glow colors for Unhealthy to Very Unhealthy
+            glowingCircle.style.setProperty('--glow-color-1', '#ff0'); // Yellow
+            glowingCircle.style.setProperty('--glow-color-2', '#ffa500'); // Orange
+            glowingCircle.style.setProperty('--glow-color-3', '#ff4500'); // Red
+            glowingCircle.style.setProperty('--glow-color-4', '#800080'); // Purple
+
+            // Change inner circle glow color
+            innerCircle.style.setProperty('--inner-glow-color', '#ff4500'); // Red
+        }
+
+        if (window.maxAQI < 100) {
+            // Change outer circle glow colors for Good to Moderate
+            glowingCircle.style.setProperty('--glow-color-1', '#00ff00'); // Green
+            glowingCircle.style.setProperty('--glow-color-2', '#ffff00'); // Yellow
+            glowingCircle.style.setProperty('--glow-color-3', '#ffa500'); // Orange
+            glowingCircle.style.setProperty('--glow-color-4', '#ff4500'); // Red
+
+            // Change inner circle glow color
+            innerCircle.style.setProperty('--inner-glow-color', '#00ff00'); // Green
+        }
     } catch (error) {
         console.error('Error updating styles:', error);
     }

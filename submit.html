@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Title</title>
+    <link rel="stylesheet" href="/src/styles/style.css">
+
+    <!-- D3.js library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Load common D3 functionality first -->
+    <script src="/src/utils/common_d3.js" defer></script>
+
+    <!-- script -->
+    <script src="/src/utils/script.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Esteban&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="parent-information">
+        <div class="div1">
+            <div class="left-content">Particle</div>
+            <div class="right-content">
+                <nav>
+                    <a href="index.html">Present</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="past.html">Past</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="information.html">Information</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="submit.html">Submit Report</a>
+                </nav>
+            </div>
+        </div>
+        <div class="div2">
+            <div class="top-box">
+                <h1 class="heading">Submit an air quality event</h1>
+                <p>Did you observe something that might have affected air quality on the ITP/IMA shop floor? Submit a
+                    report below.</p>
+                <p>Be sure to include any relevant details.</p>
+
+                <form id="airQualityForm">
+                    <div class="form-group">
+                        <input type="text" id="title" name="title" placeholder="Title of Report (10 words or less)"
+                            aria-label="Title of Report" maxlength="100">
+                        <small>ex. Fire at laser cutter</small>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea id="description" name="description" placeholder="Enter a short description here."
+                            aria-label="Description"></textarea>
+                        <small>ex. A laser cutter caught fire because someone was cutting acrylic and used incorrect
+                            settings. It was on fire for 2 minutes before it was extinguished with a fire
+                            extinguisher.</small>
+                    </div>
+
+                    <div class="form-group date-time">
+                        <label>Date and time of incident</label>
+                        <div class="date-time-inputs">
+                            <select name="month" id="month">
+                                <option value="Nov">Nov</option>
+                                <!-- Add other months -->
+                            </select>
+                            <select name="day" id="day">
+                                <option value="25">25</option>
+                                <!-- Add other days -->
+                            </select>
+                            <select name="year" id="year">
+                                <option value="24">24</option>
+                                <!-- Add other years -->
+                            </select>
+                            <select name="hour" id="hour">
+                                <option value="08">08</option>
+                                <!-- Add other hours -->
+                            </select>
+                            <select name="minute" id="minute">
+                                <option value="11">11</option>
+                                <!-- Add other minutes -->
+                            </select>
+                            <select name="period" id="period">
+                                <option value="pm">pm</option>
+                                <option value="am">am</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" id="fullName" name="fullName" placeholder="Full Name" aria-label="Full Name">
+                    </div>
+
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="E-mail address"
+                            aria-label="Email address">
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" id="submitButton">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bottom-content">Tracking Air Quality at NYU ITP/IMA</div>
+        </div>
+
+        <div class="div3">
+            <div class="top-box">
+                <div class="heading">Your reports help the community. </div><br>
+                This tool is designed to promote better awareness of the air that we breathe and the materials we use in
+                our daily practice.<br><br>The ambition for this is XXX<br><br></p>
+
+            </div>
+
+        </div>
+        <div class="div4">
+        </div>
+    </div>
+
+    <script type="module" src="/src/utils/submitForm.js"></script>
+</body>
+
+</html>
