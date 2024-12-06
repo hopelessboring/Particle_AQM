@@ -49,69 +49,63 @@ function getSpeedFromAQI(aqi) {
 }
 
 async function initScene() {
+    console.log('Initializing scene...');
     // Wait for initial data
     while (window.maxAQI === null) {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
+    console.log('maxAQI received:', window.maxAQI);
 
     // Now create the scene
     const scene = await createScene();
+    console.log('Scene created:', scene);
 
     // Start render loop
     engine.runRenderLoop(function () {
         updateParticleSystem();
         scene.render();
     });
+    console.log('Render loop started');
 }
 
 async function createScene() {
+    console.log('Creating scene...');
     var scene = new BABYLON.Scene(engine);
 
-    // Setup environment
-    scene.clearColor = new BABYLON.Color3(0, 0, 0); // Set background to black
+    // Set the scene's clear color to #282828
+    scene.clearColor = new BABYLON.Color4(0.157, 0.157, 0.157, 1.0); // RGB values for #282828
+
     var light0 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 2, 8), scene);
-    camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 1, .9, 14.186, new BABYLON.Vector3(0, 0, 0), scene); //sets initial camera position
-    camera.attachControl(canvas, true);
+    camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", Math.PI / 2, Math.PI / 2, 5, new BABYLON.Vector3(0, 0, 0), scene);
+    // no control of the camera in the browser
+    // camera.attachControl(canvas, false);
     window.camera = camera;
 
-    console.log(`Alpha: ${camera.alpha}`);
-    console.log(`Beta: ${camera.beta}`);
-    console.log(`Radius: ${camera.radius}`);
-
-    //Sphere around emitter
-    var sphere = BABYLON.MeshBuilder.CreateCylinder("sphere", { height: 1, diameter: 2 }, scene);
-    sphere.material = new BABYLON.StandardMaterial("mat", scene);
-    sphere.material.wireframe = true;
-    sphere.material.alpha = 0;
-
     // Create a particle system
+    console.log('Creating particle system...');
     particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
 
     // Texture of each particle
-    particleSystem.particleTexture = new BABYLON.Texture("./src/textures/flare.png", scene, false, false, null, function () {
-        console.log("Texture loaded successfully");
-    }, function (err) {
-        console.error("Failed to load texture:", err);
-    });
+    particleSystem.particleTexture = new BABYLON.Texture("./src/textures/flare.png", scene);
 
     // Where the particles come from
-    particleSystem.emitter = BABYLON.Vector3.Zero(); // the starting location
+    particleSystem.emitter = BABYLON.Vector3.Zero();
 
     // Initial particle colors
     let initialColors = getColorFromAQI(window.maxAQI || 0);
     particleSystem.color1 = initialColors.color1;
     particleSystem.color2 = initialColors.color2;
-    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0, 0); // Transparent
+    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0, 0);
 
-    // Size of each particle (random between...)
+    // Size of each particle
     particleSystem.minSize = 0.075;
     particleSystem.maxSize = 0.35;
 
-    // Life time of each particle (random between...)
+    // Life time of each particle
     particleSystem.minLifeTime = 0.3;
     particleSystem.maxLifeTime = 3;
 
-    // Initial emission rate
+    // Emission rate
     particleSystem.emitRate = getEmitRateFromAQI(window.maxAQI || 0);
 
     // Emission Space
@@ -125,31 +119,23 @@ async function createScene() {
 
     // Start the particle system
     particleSystem.start();
+    console.log('Particle system started');
 
     return scene;
 }
 
 // Start the init function
+console.log('Starting initialization...');
 initScene();
 
 // Function to update particle system properties
 function updateParticleSystem() {
-    // Ensure maxAQI is available
-    if (window.maxAQI === null) {
-        return;
-    }
+    if (window.maxAQI === null) return;
 
-    // Get colors based on AQI
     let colors = getColorFromAQI(window.maxAQI);
-
-    // Update particle colors
     particleSystem.color1 = colors.color1;
     particleSystem.color2 = colors.color2;
-
-    // Update emit rate
     particleSystem.emitRate = getEmitRateFromAQI(window.maxAQI);
-
-    // Update particle speed
     let speed = getSpeedFromAQI(window.maxAQI);
     particleSystem.minEmitPower = speed;
     particleSystem.maxEmitPower = speed + 1;

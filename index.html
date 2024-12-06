@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Esteban&display=swap" rel="stylesheet">
+    <script src="https://cdn.babylonjs.com/babylon.4.2.0.js"></script>
 </head>
 
 <body>
@@ -17,24 +18,26 @@
             <div class="left-content">Particle</div>
             <div class="right-content">
                 <nav>
-                    <a href="index.html">Present</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="past.html">Past</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="information.html">Information</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="submit.html">Submit Report</a>
+                    <a href="/index.html">Present</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/past.html">Past</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/information.html">Information</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/submit.html">Submit Report</a>
                 </nav>
             </div>
         </div>
         <div class="div2">
+            <canvas id="renderCanvas"></canvas>
             <div class="center-art">
+
                 <div class="glowing-circle">
                     <div class="inner"></div>
                 </div>
-                <div class="risk-annotation">
-                    <div class="annotation-line"></div>
-                    <div class="annotation-text">
-                        <div class="risk-level">Moderate Risk</div>
-                        <div class="risk-value">83 PPM PM2</div>
-                    </div>
+            </div>
+            <div class="risk-annotation">
+                <div class="annotation-line"></div>
+                <div class="annotation-text">
+                    <div class="risk-level">Moderate Risk</div>
+                    <div class="risk-value">83 PPM PM2</div>
                 </div>
             </div>
             <div class="bottom-content">Tracking Air Quality at NYU ITP/IMA </div>
@@ -66,7 +69,9 @@
         </div>
     </div>
     </div>
-    <script type="module" src="./src/main.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/particles.js"></script>
 </body>
 
 </html>

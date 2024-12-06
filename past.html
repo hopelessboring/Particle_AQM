@@ -7,18 +7,13 @@
     <title>Your Title</title>
     <link rel="stylesheet" href="/src/styles/style.css">
 
-    <!-- D3.js library -->
+    <!-- D3.js library first -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!-- Load common D3 functionality first -->
-    <script src="/src/utils/common_d3.js" defer></script>
 
-    <!-- script -->
-    <script src="/src/utils/script.js"></script>
-
+    <!-- Other styles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Esteban&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
@@ -27,18 +22,17 @@
             <div class="left-content">Particle</div>
             <div class="right-content">
                 <nav>
-                    <a href="index.html">Present</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="past.html">Past</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="information.html">Information</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="submit.html">Submit Report</a>
+                    <a href="/index.html">Present</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/past.html">Past</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/information.html">Information</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/submit.html">Submit Report</a>
                 </nav>
             </div>
         </div>
         <div class="div2">
             <div class="center-graph">
-                <div id="air_quality_monitor"></div>
-
-
+                <input type="date" id="dateSelector" class="date-selector" />
+                <div id="air_quality_monitor" style="width: 100%; height: 400px;"></div>
             </div>
             <div class="bottom-content">Tracking Air Quality at NYU ITP/IMA </div>
         </div>
@@ -50,15 +44,16 @@
                     Reports:
                 </div><br>7:47 AM - HDPE reportedly used. Fire quickly extinguished.
             </div>
-
         </div>
         <div class="div4">
             Recorded Data - Nov 25 2024
         </div>
     </div>
-    </div>
 
-
+    <!-- Scripts at the end of body in correct order -->
+    <script type="module" src="/src/utils/common_d3.js"></script>
+    <script type="module" src="/src/firebase.js"></script>
+    <script type="module" src="/src/utils/pm2_d3.js"></script>
 </body>
 
 </html>

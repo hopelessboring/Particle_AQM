@@ -4,17 +4,7 @@
         "build": "vite build",
         "preview": "vite preview"
     },
-    "dependencies": {
-        "firebase": "^11.0.2"
-    },
     "devDependencies": {
-        "vite": "^5.4.11"
-    },
-    "name": "particle",
-    "version": "1.0.0",
-    "description": "",
-    "main": "common_d3.js",
-    "keywords": [],
-    "author": "",
-    "license": "ISC"
+        "vite": "^6.0.2"
+    }
 }

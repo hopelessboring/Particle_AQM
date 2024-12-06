@@ -44,7 +44,7 @@ function createD3Chart({
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Load the CSV file using D3 v7
-    d3.csv(dataFilePath).then(function (data) {
+    d3.csv("./src/utils/pm2_d3datafile.csv").then(function (data) {
       // Parse the date and time down to the minute
       const parseTime = d3.timeParse("%Y-%m-%d-%H-%M");
 

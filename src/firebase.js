@@ -1,11 +1,12 @@
 import { initializeApp } from 'firebase/app';
 import {
     getFirestore,
-    collection,  // Add this import
+    collection,
     getDocs,
     query,
     orderBy,
-    limit
+    limit,
+    where
 } from 'firebase/firestore'
 
 // Your web app's Firebase configuration
@@ -53,6 +54,14 @@ export async function getLatestAirQualityData(numberOfRecords = 10) {
 
 // Function to fetch data within a specific time range
 export async function getAirQualityDataByTimeRange(startDate, endDate) {
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+
+    if (!startDate || !endDate) {
+        console.error('Invalid date range:', startDate, endDate);
+        return Promise.reject(new Error('Invalid date range'));
+    }
+
     try {
         const airQualityRef = collection(db, 'air_quality');
         const q = query(
