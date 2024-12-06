@@ -5,18 +5,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const dateSelector = document.getElementById('dateSelector');
   const submitButton = document.createElement('button');
 
+  // Set default date to today
+  const today = new Date();
+  const formattedDate = today.toISOString().split('T')[0];
+  if (dateSelector) {
+    dateSelector.value = formattedDate;
+  }
+
   // Create and add submit button
   submitButton.textContent = 'Update Chart';
   submitButton.className = 'btn btn-primary mt-2';
   submitButton.style.cssText = `
-        margin-left: 10px;
-        padding: 5px 15px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    `;
+		margin-left: 10px;
+		padding: 5px 15px;
+		background-color: #4CAF50;
+		color: white;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+	`;
   if (dateSelector) {
     dateSelector.parentNode.insertBefore(submitButton, dateSelector.nextSibling);
   }
@@ -49,12 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Initial fetch with the current date
-  const [year, month, day] = dateSelector.value.split('-').map(Number);
-  const initialDate = new Date(year, month - 1, day, 12, 0, 0);
-  if (!isNaN(initialDate)) {
-    fetchDataAndUpdateChart(chartElement, initialDate);
-  }
+  // Initial fetch with today's date
+  fetchDataAndUpdateChart(chartElement, today);
 });
 
 function fetchDataAndUpdateChart(element, selectedDate) {
