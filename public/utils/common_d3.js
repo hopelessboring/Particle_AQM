@@ -1,3 +1,6 @@
+// Add this at the top of the file
+window.createD3Chart = createD3Chart;
+
 // Export the functions that need to be used in other files
 export function createD3Chart({
   containerId,
