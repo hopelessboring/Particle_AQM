@@ -655,3 +655,49 @@ nav a:hover {
     font-size: 0.9em;
     opacity: 0.7;
 }
+
+/* D3 Popup */
+.report-detail-box {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 300px;
+    color: #282828;
+    font-family: 'Berthold Akzidenz Grotesk';
+}
+
+.report-detail-box h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+}
+
+.report-detail-box .time {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+}
+
+.report-detail-box .description {
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.report-detail-box .reporter {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.report-item {
+    padding: 8px 0;
+    margin-top: 1em;
+    font-size: 1em;
+}
+
+.no-reports {
+    color: #666;
+    font-style: italic;
+    padding: 8px 0;
+}

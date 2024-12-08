@@ -27,9 +27,41 @@ function populateMinutes() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Populate dropdowns
+    // Get today's date in EST
+    const today = new Date();
+    const estOptions = { timeZone: 'America/New_York' };
+    const nyDate = new Date(today.toLocaleString('en-US', estOptions));
+
+    // Set default date values
+    const month = document.getElementById('month');
+    const day = document.getElementById('day');
+    const year = document.getElementById('year');
+
+    // Set month
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    month.value = monthNames[nyDate.getMonth()];
+
+    // Populate days dropdown
     populateDays();
+
+    // Set day (ensure two-digit format)
+    const currentDay = nyDate.getDate();
+    const formattedDay = currentDay < 10 ? `0${currentDay}` : String(currentDay);
+    day.value = formattedDay;
+
+    // Set year
+    year.value = nyDate.getFullYear().toString().slice(-2);
+
+    // Populate minutes dropdown
     populateMinutes();
+
+    console.log('Date values set:', {
+        month: month.value,
+        day: day.value,
+        year: year.value,
+        currentDay: currentDay,
+        formattedDay: formattedDay
+    });
 
     const form = document.getElementById('airQualityForm');
     const submitButton = document.getElementById('submitButton');

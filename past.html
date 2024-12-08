@@ -41,9 +41,10 @@
             <div class="top-box">
                 <div class="heading">Past Data and Reports</div><br>This tool is designed to promote better awareness of
                 the air that we breathe and the materials we use in our daily practice.<br><br>
-                <div class="heading">Submitted
-                    Reports:
-                </div><br>7:47 AM - HDPE reportedly used. Fire quickly extinguished.
+                <div class="heading">Submitted Reports:</div>
+                <div id="reports-list">
+                    <!-- Reports will be populated here dynamically -->
+                </div>
             </div>
         </div>
         <div class="div4">
@@ -54,6 +55,39 @@
     <!-- Scripts at the end of body in correct order -->
     <script type="module" src="/src/firebase.js"></script>
     <script type="module" src="/src/utils/pm2_d3.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reportsList = document.getElementById('reports-list');
+
+            // Listen for when reports are loaded (they're already being fetched by pm2_d3.js)
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList' && mutation.target.classList.contains('report-marker')) {
+                        const reports = Array.from(document.querySelectorAll('.report-marker')).map(marker => {
+                            const title = marker.querySelector('title').textContent.split('\n')[0];
+                            const time = marker.querySelector('title').textContent.split('\n')[1];
+                            return { title, time };
+                        });
+
+                        // Update the reports list
+                        reportsList.innerHTML = reports.length ?
+                            reports.map(report => `
+                            <div class="report-item">
+                                ${report.time} - ${report.title}
+                            </div>
+                        `).join('') :
+                            '<div class="no-reports">No reports for this selected date</div>';
+                    }
+                });
+            });
+
+            // Observe the air quality monitor for changes
+            observer.observe(document.getElementById('air_quality_monitor'), {
+                childList: true,
+                subtree: true
+            });
+        });
+    </script>
 </body>
 
 </html>

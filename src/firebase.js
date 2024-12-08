@@ -6,7 +6,9 @@ import {
     query,
     orderBy,
     limit,
-    where
+    where,
+    addDoc,
+    serverTimestamp
 } from 'firebase/firestore'
 
 // Your web app's Firebase configuration
@@ -85,6 +87,29 @@ export async function getAirQualityDataByTimeRange(startDate, endDate) {
     } catch (error) {
         console.error("Error fetching air quality data:", error);
         throw error;
+    }
+}
+
+// Add this new function
+export async function getReportsByTimeRange(startDate, endDate) {
+    const reportsRef = collection(db, 'airQualityReports');
+    const q = query(
+        reportsRef,
+        where('date', '>=', new Date(startDate)),
+        where('date', '<=', new Date(endDate))
+    );
+
+    try {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            // Ensure date is properly converted to Date object
+            date: doc.data().date.toDate() // Convert Firestore Timestamp to Date
+        }));
+    } catch (error) {
+        console.error('Error fetching reports:', error);
+        return [];
     }
 }
 
