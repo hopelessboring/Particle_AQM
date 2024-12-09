@@ -1,0 +1,8 @@
+/Fonts/
+script_OLD.js
+.env
+firestore.rulesnode_modules/
+node_modules
+dist
+.env.*
+!.env.example

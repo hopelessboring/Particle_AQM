@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add options
   const metrics = [
-    { value: 'max_aqi', label: 'Max AQI' },
+    { value: 'max_aqi', label: 'AQI General Index' },
     { value: 'pm1_0', label: 'PM1.0' },
     { value: 'pm2_5', label: 'PM2.5' },
     { value: 'pm10', label: 'PM10' },
@@ -158,7 +158,14 @@ function fetchDataAndUpdateChart(element, selectedDate) {
       );
 
       if (validData.length > 0) {
-        createSingleMetricChart(element, validData, selectedMetric, reports);
+        // Force the domain to span full 24 hours by adding these properties
+        const timeExtent = {
+          start: startDate,
+          end: endDate,
+          forceFullDay: true  // New flag to indicate we want full day range
+        };
+
+        createSingleMetricChart(element, validData, selectedMetric, reports, timeExtent);
       } else {
         console.warn('No valid data available');
         element.innerHTML = '<p class="text-center">No valid data available for the selected date.</p>';
@@ -169,7 +176,7 @@ function fetchDataAndUpdateChart(element, selectedDate) {
     });
 }
 
-function createSingleMetricChart(element, data, metric, reports) {
+function createSingleMetricChart(element, data, metric, reports, timeExtent) {
   let thresholds;
   switch (metric) {
     case 'max_aqi':
@@ -205,7 +212,8 @@ function createSingleMetricChart(element, data, metric, reports) {
     unhealthyThreshold: thresholds.unhealthy,
     width: element.clientWidth,
     height: element.clientHeight - 20,
-    reports: reports
+    reports: reports,
+    timeExtent: timeExtent  // Pass the time extent to the D3 chart
   });
 }
 

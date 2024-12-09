@@ -1,6 +1,7 @@
 // Import necessary functions
 import { getLatestAirQualityData, getAirQualityDataByTimeRange } from './firebase.js';
 import { breakpoints, calculateSubIndex } from './utils/air-quality.js';
+import { updateRiskText } from './riskText.js';
 
 // Global variables
 window.tvoc = null;
@@ -22,14 +23,14 @@ Object.defineProperty(window, 'maxAQI', {
     }
 });
 
-// Define core colors 
+// Define core colors
 const CORE_COLORS = {
-    safe: [0, 255, 128],      // A soft green
-    moderate: [255, 223, 0],   // A warm yellow
-    warning: [255, 140, 0],    // A bright orange
-    danger: [255, 69, 0],      // A vibrant red
-    severe: [128, 0, 128],     // A deep purple
-    hazardous: [128, 0, 0]     // A dark red
+    safe: [140, 255, 255],    // Cyan-tinted blue
+    good: [0, 255, 200],      // Seafoam green
+    moderate: [255, 255, 255], // White (neutral transition)
+    concern: [255, 200, 200],  // Light pink
+    danger: [255, 100, 100],   // Bright red
+    hazardous: [128, 0, 0]     // Deep red
 };
 
 function interpolateColor(color1, color2, factor) {
@@ -42,15 +43,15 @@ function interpolateColor(color1, color2, factor) {
 
 function getColorForAQI(aqi) {
     if (aqi <= 50) {
-        return interpolateColor(CORE_COLORS.safe, CORE_COLORS.moderate, aqi / 50);
+        return interpolateColor(CORE_COLORS.safe, CORE_COLORS.good, aqi / 50);
     } else if (aqi <= 100) {
-        return interpolateColor(CORE_COLORS.moderate, CORE_COLORS.warning, (aqi - 50) / 50);
+        return interpolateColor(CORE_COLORS.good, CORE_COLORS.moderate, (aqi - 50) / 50);
     } else if (aqi <= 200) {
-        return interpolateColor(CORE_COLORS.warning, CORE_COLORS.danger, (aqi - 100) / 100);
+        return interpolateColor(CORE_COLORS.moderate, CORE_COLORS.concern, (aqi - 100) / 100);
     } else if (aqi <= 300) {
-        return interpolateColor(CORE_COLORS.danger, CORE_COLORS.severe, (aqi - 200) / 100);
+        return interpolateColor(CORE_COLORS.concern, CORE_COLORS.danger, (aqi - 200) / 100);
     } else if (aqi <= 500) {
-        return interpolateColor(CORE_COLORS.severe, CORE_COLORS.hazardous, (aqi - 300) / 200);
+        return interpolateColor(CORE_COLORS.danger, CORE_COLORS.hazardous, (aqi - 300) / 200);
     }
     return `rgb(${CORE_COLORS.hazardous[0]}, ${CORE_COLORS.hazardous[1]}, ${CORE_COLORS.hazardous[2]})`;
 }
@@ -77,6 +78,7 @@ async function displayAirQualityData() {
         const subIndexeCO2 = calculateSubIndex(eco2, 'eco2');
 
         // Calculate maximum sub-index
+        // need to generate a better method to calculate AQI from the subindices (range of 0-500)
         const maxSubIndex = Math.max(subIndexPM1_0, subIndexPM2_5, subIndexPM10, subIndexTVOC, subIndexeCO2);
         window.maxAQI = maxSubIndex;
 
@@ -149,6 +151,7 @@ async function updateStyles() {
             glowingCircle.style.setProperty('--glow-color-4', color);
             innerCircle.style.setProperty('--inner-glow-color', color);
 
+            // need to reintegrate risk level language into the animation
             // Determine risk level based on AQI
             let riskLevel;
             let dominantPollutant = '';
@@ -167,6 +170,7 @@ async function updateStyles() {
                 riskLevel = 'Hazardous';
             }
 
+            // is the dominant pollutant being used anywhere?
             // Determine dominant pollutant
             const pollutants = {
                 'PM2.5': reading.pm2_5,
@@ -189,6 +193,8 @@ async function updateStyles() {
                 riskLevelElement.textContent = riskLevel;
                 riskValueElement.textContent = valueString;
             }
+
+            updatePulseSpeed(window.maxAQI);
         });
 
         if (window.maxAQI >= 100 && window.maxAQI < 300) {
@@ -212,10 +218,32 @@ async function updateStyles() {
             // Change inner circle glow color
             innerCircle.style.setProperty('--inner-glow-color', '#00ff00'); // Green
         }
+
+        function updatePulseSpeed(aqi) {
+            const inner = document.querySelector('.inner');
+            // Map AQI to animation duration (in seconds)
+            // AQI ranges: 0-50 (Good), 51-100 (Moderate), 101-150 (Unhealthy for Sensitive Groups),
+            // 151-200 (Unhealthy), 201-300 (Very Unhealthy), 301+ (Hazardous)
+            let pulseDuration;
+            if (aqi <= 50) pulseDuration = 20; // Slowest pulse for good air
+            else if (aqi <= 100) pulseDuration = 16;
+            else if (aqi <= 150) pulseDuration = 12;
+            else if (aqi <= 200) pulseDuration = 8;
+            else if (aqi <= 300) pulseDuration = 4;
+            else pulseDuration = 2; // Fastest pulse for hazardous air
+
+            inner.style.setProperty('--pulse-speed', `${pulseDuration}s`);
+
+            // for the glow opacity
+            const opacity = aqi / 100; // or whatever scale you want to use
+            inner.style.setProperty('--glow-opacity', opacity);
+
+        }
+
     } catch (error) {
         console.error('Error updating styles:', error);
     }
 }
 
-// Start the polling
+// Move this to the end of the file
 startDataPolling();
