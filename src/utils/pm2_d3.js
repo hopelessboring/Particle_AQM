@@ -86,6 +86,17 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Invalid date selected');
       return;
     }
+
+    // Update the div4 content with selected date
+    const options = {
+      timeZone: 'America/New_York',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    };
+    const dateStr = selectedDate.toLocaleDateString('en-US', options);
+    document.querySelector('.div4').textContent = `Recorded Data - ${dateStr}`;
+
     fetchDataAndUpdateChart(chartElement, selectedDate);
   };
 
@@ -105,6 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial fetch with EST date
   fetchDataAndUpdateChart(chartElement, estDate);
+
+  // Initial date display
+  const initialDateStr = estDate.toLocaleDateString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+  document.querySelector('.div4').textContent = `Recorded Data - ${initialDateStr}`;
 });
 
 function fetchDataAndUpdateChart(element, selectedDate) {

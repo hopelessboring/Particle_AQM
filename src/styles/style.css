@@ -645,9 +645,10 @@ nav a:hover {
 }
 
 .no-reports {
-    color: #666;
+    padding: 15px 0;
+    color: rgba(255, 255, 255, 0.7);
     font-style: italic;
-    padding: 8px 0;
+    text-align: left;
 }
 
 .white-link {
