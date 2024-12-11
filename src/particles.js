@@ -1,6 +1,6 @@
 // Get the canvas and create the engine
 const canvas = document.getElementById("renderCanvas");
-const engine = new BABYLON.Engine(canvas, true);
+const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
 
 // Declare particleSystem at the top level so it's accessible everywhere
 let particleSystem;
@@ -69,57 +69,54 @@ async function initScene() {
 }
 
 async function createScene() {
-    console.log('Creating scene...');
-    var scene = new BABYLON.Scene(engine);
+    const scene = new BABYLON.Scene(engine);
+    scene.clearColor = new BABYLON.Color4(0.157, 0.157, 0.157, 1.0);
 
-    // Set the scene's clear color to #282828
-    scene.clearColor = new BABYLON.Color4(0.157, 0.157, 0.157, 1.0); // RGB values for #282828
+    // Adjust camera distance based on screen size
+    const isMobile = window.innerWidth <= 768;
+    const cameraRadius = isMobile ? 3 : 5;  // Closer camera for mobile
+
+    camera = new BABYLON.ArcRotateCamera(
+        "ArcRotateCamera",
+        Math.PI / 2,
+        Math.PI / 2,
+        cameraRadius,
+        new BABYLON.Vector3(0, 0, 0),
+        scene
+    );
 
     var light0 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 2, 8), scene);
-    camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", Math.PI / 2, Math.PI / 2, 5, new BABYLON.Vector3(0, 0, 0), scene);
-    // no control of the camera in the browser
-    // camera.attachControl(canvas, false);
-    window.camera = camera;
 
-    // Create a particle system
-    console.log('Creating particle system...');
+    // Adjust particle system for screen size
     particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
-
-    // Texture of each particle
     particleSystem.particleTexture = new BABYLON.Texture("./src/textures/flare.png", scene);
-
-    // Where the particles come from
     particleSystem.emitter = BABYLON.Vector3.Zero();
 
-    // Initial particle colors
+    // Adjust particle size based on screen size
+    const sizeMultiplier = isMobile ? 0.75 : 1;
+    particleSystem.minSize = 0.075 * sizeMultiplier;
+    particleSystem.maxSize = 0.35 * sizeMultiplier;
+
+    // Adjust emission space for mobile
+    const emitterRadius = isMobile ? 0.75 : 1;
+    particleSystem.createCylinderEmitter(emitterRadius, emitterRadius, 0, 0);
+
+    // Rest of your particle system setup...
     let initialColors = getColorFromAQI(window.maxAQI || 0);
     particleSystem.color1 = initialColors.color1;
     particleSystem.color2 = initialColors.color2;
     particleSystem.colorDead = new BABYLON.Color4(0, 0, 0, 0);
 
-    // Size of each particle
-    particleSystem.minSize = 0.075;
-    particleSystem.maxSize = 0.35;
-
-    // Life time of each particle
     particleSystem.minLifeTime = 0.3;
     particleSystem.maxLifeTime = 3;
-
-    // Emission rate
     particleSystem.emitRate = getEmitRateFromAQI(window.maxAQI || 0);
 
-    // Emission Space
-    particleSystem.createCylinderEmitter(1, 1, 0, 0);
-
-    // Initial Speed
     let speed = getSpeedFromAQI(window.maxAQI || 0);
     particleSystem.minEmitPower = speed;
     particleSystem.maxEmitPower = speed + 1;
     particleSystem.updateSpeed = 0.005;
 
-    // Start the particle system
     particleSystem.start();
-    console.log('Particle system started');
 
     return scene;
 }
@@ -141,7 +138,19 @@ function updateParticleSystem() {
     particleSystem.maxEmitPower = speed + 1;
 }
 
-// Watch for browser/canvas resize events
-window.addEventListener("resize", function () {
+// Add resize handler to adjust for orientation changes
+window.addEventListener("resize", () => {
+    const isMobile = window.innerWidth <= 768;
+    if (camera) {
+        camera.radius = isMobile ? 3 : 5;
+    }
+    if (particleSystem) {
+        const sizeMultiplier = isMobile ? 0.75 : 1;
+        particleSystem.minSize = 0.075 * sizeMultiplier;
+        particleSystem.maxSize = 0.35 * sizeMultiplier;
+
+        const emitterRadius = isMobile ? 0.75 : 1;
+        particleSystem.createCylinderEmitter(emitterRadius, emitterRadius, 0, 0);
+    }
     engine.resize();
 });
