@@ -9,7 +9,7 @@
 
     <!-- D3.js library first -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="/src/utils/common_d3.js"></script>
+    <script type="module" src="/src/utils/d3_charts.js"></script>
 
     <!-- Other styles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,9 +31,9 @@
             </div>
         </div>
         <div class="div2">
-            <div class="center-graph">
-                <input type="date" id="dateSelector" class="date-selector" />
-                <div id="air_quality_monitor" style="width: 100%; height: 90%;"></div>
+            <div class="chart-container">
+                <input type="date" id="dateSelector" class="date-selector">
+                <div id="air_quality_monitor"></div>
             </div>
             <div class="bottom-content">Tracking Air Quality at NYU ITP/IMA </div>
         </div>
@@ -54,38 +54,49 @@
 
     <!-- Scripts at the end of body in correct order -->
     <script type="module" src="/src/firebase.js"></script>
-    <script type="module" src="/src/utils/pm2_d3.js"></script>
-    <script>
+    <!-- <script type="module" src="/src/utils/pm2_d3.js"></script> -->
+    <script type="module">
+        import { getReportsByTimeRange } from '/src/firebase.js';
+
         document.addEventListener('DOMContentLoaded', () => {
             const reportsList = document.getElementById('reports-list');
+            const dateSelector = document.getElementById('dateSelector');
 
-            // Listen for when reports are loaded (they're already being fetched by pm2_d3.js)
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList' && mutation.target.classList.contains('report-marker')) {
-                        const reports = Array.from(document.querySelectorAll('.report-marker')).map(marker => {
-                            const title = marker.querySelector('title').textContent.split('\n')[0];
-                            const time = marker.querySelector('title').textContent.split('\n')[1];
-                            return { title, time };
-                        });
+            // Function to update reports list
+            const updateReportsList = async (date) => {
+                if (!date) return;
 
-                        // Update the reports list
-                        reportsList.innerHTML = reports.length ?
-                            reports.map(report => `
+                const startDate = new Date(date);
+                startDate.setHours(0, 0, 0, 0);
+                const endDate = new Date(date);
+                endDate.setHours(23, 59, 59, 999);
+
+                try {
+                    const reports = await getReportsByTimeRange(
+                        startDate.toISOString(),
+                        endDate.toISOString()
+                    );
+
+                    // Update the reports list
+                    reportsList.innerHTML = reports.length ?
+                        reports.map(report => `
                             <div class="report-item">
-                                ${report.time} - ${report.title}
+                                ${new Date(report.date).toLocaleTimeString()} - ${report.title}
                             </div>
                         `).join('') :
-                            '<div class="no-reports">No reports for this selected date</div>';
-                    }
-                });
-            });
+                        '<div class="no-reports">No reports for this selected date</div>';
+                } catch (error) {
+                    console.error('Error fetching reports:', error);
+                    reportsList.innerHTML = '<div class="error">Error loading reports</div>';
+                }
+            };
 
-            // Observe the air quality monitor for changes
-            observer.observe(document.getElementById('air_quality_monitor'), {
-                childList: true,
-                subtree: true
-            });
+            // Update reports when date changes
+            if (dateSelector) {
+                dateSelector.addEventListener('change', (e) => {
+                    updateReportsList(e.target.value);
+                });
+            }
         });
     </script>
 </body>

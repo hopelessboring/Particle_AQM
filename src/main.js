@@ -2,6 +2,7 @@
 import { getLatestAirQualityData, getAirQualityDataByTimeRange } from './firebase.js';
 import { breakpoints, calculateSubIndex } from './utils/air-quality.js';
 import { updateRiskText } from './riskText.js';
+import { createD3Chart, fetchDataAndUpdateChart } from './utils/d3_charts.js';
 
 // Global variables
 window.tvoc = null;

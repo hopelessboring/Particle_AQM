@@ -1,3 +1,5 @@
+import { createD3Chart } from './d3_charts.js';
+
 ///// Event Listeners for initial load and click detection //////
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -7,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     clearChart();  // Clear existing chart
     createD3Chart({
       containerId: "#air_quality_monitor",
-      dataFilePath: "/src/utils/pm2_d3datafile.csv",
+      // dataFilePath: "/src/utils/pm2_d3datafile.csv",
       xAxisLabel: "Time",
       yAxisLabel: "Micrograms Per Cubic Meter (μg/m³)",
       lineColor: "black",
