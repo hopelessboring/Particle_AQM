@@ -24,37 +24,104 @@ Object.defineProperty(window, 'maxAQI', {
     }
 });
 
-// Define core colors
-const CORE_COLORS = {
-    safe: [140, 255, 255],    // Cyan-tinted blue
-    good: [0, 255, 200],      // Seafoam green
-    moderate: [255, 255, 255], // White (neutral transition)
-    concern: [255, 200, 200],  // Light pink
-    danger: [255, 100, 100],   // Bright red
-    hazardous: [128, 0, 0]     // Deep red
+// Define core colors with their AQI ranges
+const AQI_COLOR_RANGES = {
+    GOOD: { min: 0, max: 50 },
+    MODERATE: { min: 51, max: 100 },
+    SENSITIVE: { min: 101, max: 150 },
+    UNHEALTHY: { min: 151, max: 200 },
+    VERY_UNHEALTHY: { min: 201, max: 300 },
+    HAZARDOUS: { min: 301, max: 500 }
 };
 
-function interpolateColor(color1, color2, factor) {
-    const result = color1.slice();
-    for (let i = 0; i < 3; i++) {
-        result[i] = Math.round(result[i] + factor * (color2[i] - result[i]));
+// Define color configuration for each range
+const COLOR_CONFIG = {
+    GOOD: {
+        primary: [80, 120, 121],      // Blue
+        glow: {
+            opacity: 0.6,
+            pulseSpeed: 20
+        }
+    },
+    MODERATE: {
+        primary: [255, 255, 0],    // Yellow
+        glow: {
+            opacity: 0.7,
+            pulseSpeed: 16
+        }
+    },
+    SENSITIVE: {
+        primary: [255, 165, 0],    // Orange
+        glow: {
+            opacity: 0.8,
+            pulseSpeed: 12
+        }
+    },
+    UNHEALTHY: {
+        primary: [255, 69, 0],     // Red
+        glow: {
+            opacity: 0.85,
+            pulseSpeed: 8
+        }
+    },
+    VERY_UNHEALTHY: {
+        primary: [128, 0, 128],    // Purple
+        glow: {
+            opacity: 0.9,
+            pulseSpeed: 4
+        }
+    },
+    HAZARDOUS: {
+        primary: [128, 0, 0],      // Dark Red
+        glow: {
+            opacity: 1,
+            pulseSpeed: 2
+        }
     }
-    return `rgb(${result[0]}, ${result[1]}, ${result[2]})`;
+};
+
+function getRangeForAQI(aqi) {
+    for (const [range, values] of Object.entries(AQI_COLOR_RANGES)) {
+        if (aqi >= values.min && aqi <= values.max) {
+            return range;
+        }
+    }
+    return 'HAZARDOUS'; // Default for any value above 500
 }
 
-function getColorForAQI(aqi) {
-    if (aqi <= 50) {
-        return interpolateColor(CORE_COLORS.safe, CORE_COLORS.good, aqi / 50);
-    } else if (aqi <= 100) {
-        return interpolateColor(CORE_COLORS.good, CORE_COLORS.moderate, (aqi - 50) / 50);
-    } else if (aqi <= 200) {
-        return interpolateColor(CORE_COLORS.moderate, CORE_COLORS.concern, (aqi - 100) / 100);
-    } else if (aqi <= 300) {
-        return interpolateColor(CORE_COLORS.concern, CORE_COLORS.danger, (aqi - 200) / 100);
-    } else if (aqi <= 500) {
-        return interpolateColor(CORE_COLORS.danger, CORE_COLORS.hazardous, (aqi - 300) / 200);
-    }
-    return `rgb(${CORE_COLORS.hazardous[0]}, ${CORE_COLORS.hazardous[1]}, ${CORE_COLORS.hazardous[2]})`;
+function updateVisualElements(aqi) {
+    const glowingCircle = document.querySelector('.glowing-circle');
+    const innerCircle = document.querySelector('.inner');
+
+    if (!glowingCircle || !innerCircle) return;
+
+    const range = getRangeForAQI(aqi);
+    const config = COLOR_CONFIG[range];
+    const baseColor = `rgb(${config.primary.join(',')})`;
+
+    // Update glow colors with variations
+    glowingCircle.style.setProperty('--glow-color-1', baseColor);
+    glowingCircle.style.setProperty('--glow-color-2', adjustBrightness(baseColor, 1.1));
+    glowingCircle.style.setProperty('--glow-color-3', adjustBrightness(baseColor, 0.9));
+    glowingCircle.style.setProperty('--glow-color-4', adjustBrightness(baseColor, 0.8));
+
+    // Update inner circle
+    innerCircle.style.setProperty('--inner-glow-color', baseColor);
+    innerCircle.style.setProperty('--glow-opacity', config.glow.opacity);
+    innerCircle.style.setProperty('--pulse-speed', `${config.glow.pulseSpeed}s`);
+}
+
+function adjustBrightness(color, factor) {
+    // Extract RGB values from the color string
+    const rgb = color.match(/\d+/g).map(Number);
+
+    // Adjust each component by the factor
+    const adjusted = rgb.map(value => {
+        const newValue = Math.round(value * factor);
+        return Math.min(255, Math.max(0, newValue)); // Clamp between 0 and 255
+    });
+
+    return `rgb(${adjusted[0]}, ${adjusted[1]}, ${adjusted[2]})`;
 }
 
 // Example async function to fetch and display data
@@ -142,17 +209,9 @@ async function updateStyles() {
             glowingCircle.style.animationDuration = `${glowIntensity / 7}s`;
             innerCircle.style.animationDuration = `${pulseSpeed}s`;
 
-            // Get interpolated color based on AQI
-            const color = getColorForAQI(window.maxAQI);
+            // Update visual elements using the new function
+            updateVisualElements(window.maxAQI);
 
-            // Apply colors with slight variations for visual interest
-            glowingCircle.style.setProperty('--glow-color-1', color);
-            glowingCircle.style.setProperty('--glow-color-2', color);
-            glowingCircle.style.setProperty('--glow-color-3', color);
-            glowingCircle.style.setProperty('--glow-color-4', color);
-            innerCircle.style.setProperty('--inner-glow-color', color);
-
-            // need to reintegrate risk level language into the animation
             // Determine risk level based on AQI
             let riskLevel;
             let dominantPollutant = '';
@@ -171,7 +230,6 @@ async function updateStyles() {
                 riskLevel = 'Hazardous';
             }
 
-            // is the dominant pollutant being used anywhere?
             // Determine dominant pollutant
             const pollutants = {
                 'PM2.5': reading.pm2_5,
@@ -194,52 +252,7 @@ async function updateStyles() {
                 riskLevelElement.textContent = riskLevel;
                 riskValueElement.textContent = valueString;
             }
-
-            updatePulseSpeed(window.maxAQI);
         });
-
-        if (window.maxAQI >= 100 && window.maxAQI < 300) {
-            // Change outer circle glow colors for Unhealthy to Very Unhealthy
-            glowingCircle.style.setProperty('--glow-color-1', '#ff0'); // Yellow
-            glowingCircle.style.setProperty('--glow-color-2', '#ffa500'); // Orange
-            glowingCircle.style.setProperty('--glow-color-3', '#ff4500'); // Red
-            glowingCircle.style.setProperty('--glow-color-4', '#800080'); // Purple
-
-            // Change inner circle glow color
-            innerCircle.style.setProperty('--inner-glow-color', '#ff4500'); // Red
-        }
-
-        if (window.maxAQI < 100) {
-            // Change outer circle glow colors for Good to Moderate
-            glowingCircle.style.setProperty('--glow-color-1', '#00ff00'); // Green
-            glowingCircle.style.setProperty('--glow-color-2', '#ffff00'); // Yellow
-            glowingCircle.style.setProperty('--glow-color-3', '#ffa500'); // Orange
-            glowingCircle.style.setProperty('--glow-color-4', '#ff4500'); // Red
-
-            // Change inner circle glow color
-            innerCircle.style.setProperty('--inner-glow-color', '#00ff00'); // Green
-        }
-
-        function updatePulseSpeed(aqi) {
-            const inner = document.querySelector('.inner');
-            // Map AQI to animation duration (in seconds)
-            // AQI ranges: 0-50 (Good), 51-100 (Moderate), 101-150 (Unhealthy for Sensitive Groups),
-            // 151-200 (Unhealthy), 201-300 (Very Unhealthy), 301+ (Hazardous)
-            let pulseDuration;
-            if (aqi <= 50) pulseDuration = 20; // Slowest pulse for good air
-            else if (aqi <= 100) pulseDuration = 16;
-            else if (aqi <= 150) pulseDuration = 12;
-            else if (aqi <= 200) pulseDuration = 8;
-            else if (aqi <= 300) pulseDuration = 4;
-            else pulseDuration = 2; // Fastest pulse for hazardous air
-
-            inner.style.setProperty('--pulse-speed', `${pulseDuration}s`);
-
-            // for the glow opacity
-            const opacity = aqi / 100; // or whatever scale you want to use
-            inner.style.setProperty('--glow-opacity', opacity);
-
-        }
 
     } catch (error) {
         console.error('Error updating styles:', error);

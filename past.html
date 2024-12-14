@@ -97,6 +97,13 @@
                     updateReportsList(e.target.value);
                 });
             }
+
+            // Set initial date to today
+            const today = new Date().toISOString().split('T')[0];
+            dateSelector.value = today;
+
+            // Trigger initial load
+            updateReportsList(today);
         });
     </script>
 </body>
