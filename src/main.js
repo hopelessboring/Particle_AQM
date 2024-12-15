@@ -37,42 +37,43 @@ const AQI_COLOR_RANGES = {
 // Define color configuration for each range
 const COLOR_CONFIG = {
     GOOD: {
-        primary: [80, 120, 121],      // Blue
+        primary: [80, 120, 121],      // Blue/Green - AWESOME
         glow: {
             opacity: 0.6,
             pulseSpeed: 20
         }
     },
     MODERATE: {
-        primary: [255, 255, 0],    // Yellow
+        primary: [121, 109, 80],    // Yellow
         glow: {
             opacity: 0.7,
             pulseSpeed: 16
         }
     },
     SENSITIVE: {
-        primary: [255, 165, 0],    // Orange
+        primary: [121, 94, 80],    // Orange
         glow: {
             opacity: 0.8,
             pulseSpeed: 12
         }
     },
     UNHEALTHY: {
-        primary: [255, 69, 0],     // Red
+        primary: [121, 80, 80], // Dark Red faded
         glow: {
             opacity: 0.85,
             pulseSpeed: 8
         }
     },
     VERY_UNHEALTHY: {
-        primary: [128, 0, 128],    // Purple
+        primary: [255, 69, 0],     // Red
+
         glow: {
             opacity: 0.9,
             pulseSpeed: 4
         }
     },
     HAZARDOUS: {
-        primary: [128, 0, 0],      // Dark Red
+        primary: [255, 0, 0],      // Dark Red
         glow: {
             opacity: 1,
             pulseSpeed: 2
@@ -198,6 +199,7 @@ async function updateStyles() {
         const latestData = await getLatestAirQualityData(1);
         const glowingCircle = document.querySelector('.glowing-circle');
         const innerCircle = document.querySelector('.inner');
+        const riskDescriptionElement = document.getElementById('riskDescription');
 
         if (!glowingCircle || !innerCircle) return;
 
@@ -212,22 +214,33 @@ async function updateStyles() {
             // Update visual elements using the new function
             updateVisualElements(window.maxAQI);
 
-            // Determine risk level based on AQI
+            // Determine risk level and description based on AQI
             let riskLevel;
-            let dominantPollutant = '';
+            let riskDescription;
 
             if (window.maxAQI <= 50) {
                 riskLevel = 'Good Air Quality';
+                riskDescription = 'Air quality is satisfactory, and air pollution poses little or no risk.';
             } else if (window.maxAQI <= 100) {
                 riskLevel = 'Moderate Risk';
+                riskDescription = 'Air quality is acceptable; however, there may be a moderate health concern for a very small number of people.';
             } else if (window.maxAQI <= 150) {
                 riskLevel = 'Unhealthy for Sensitive Groups';
+                riskDescription = 'Members of sensitive groups may experience health effects. The general public is not likely to be affected.';
             } else if (window.maxAQI <= 200) {
                 riskLevel = 'Unhealthy';
+                riskDescription = 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.';
             } else if (window.maxAQI <= 300) {
                 riskLevel = 'Very Unhealthy';
+                riskDescription = 'Health warnings of emergency conditions. The entire population is more likely to be affected.';
             } else {
                 riskLevel = 'Hazardous';
+                riskDescription = 'Health alert: everyone may experience more serious health effects. Take immediate action to protect yourself.';
+            }
+
+            // Update the risk description text
+            if (riskDescriptionElement) {
+                riskDescriptionElement.textContent = riskDescription;
             }
 
             // Determine dominant pollutant
@@ -239,7 +252,7 @@ async function updateStyles() {
             };
 
             const highestValue = Math.max(...Object.values(pollutants));
-            dominantPollutant = Object.entries(pollutants).find(([key, value]) => value === highestValue)[0];
+            const dominantPollutant = Object.entries(pollutants).find(([key, value]) => value === highestValue)[0];
 
             // Format the value string
             const valueString = `${Math.round(highestValue)} PPM ${dominantPollutant}`;
