@@ -1,4 +1,4 @@
-import { getAirQualityDataByTimeRange, getReportsByTimeRange } from '../firebase.js';
+import { getAirQualityDataByTimeRange, getReportsByTimeRange } from '../src/firebase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const chartElement = document.getElementById('air_quality_monitor');
